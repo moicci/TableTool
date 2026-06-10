@@ -1,3 +1,12 @@
+This repository is forked from [danaspiegel/TableTool](https://github.com/danaspiegel/TableTool) which was forked from [jakob/TableTool](https://github.com/jakob/TableTool) with the following enhancements.
+
+- Added "Show Column Numbers" and "Show Column Letters" to the View menu.
+- Auto-detects Japanese text encodings such as Shift_JIS and UTF-8 when opening a file.
+- Drag and drop a CSV file into the window to open it.
+
+
+--
+
 <img style='margin: 0 auto' src="https://github.com/jakob/TableTool/raw/master/Table%20Tool/Images.xcassets/AppIcon.appiconset/icon_128x128@2x.png" width=128 height=128>
 
 # Table Tool 
