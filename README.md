@@ -1,4 +1,4 @@
-This repository is forked from [danaspiegel/TableTool](https://github.com/danaspiegel/TableTool) which was forked from [jakob/TableTool](https://github.com/jakob/TableTool) with the following enhancements.
+This repository is forked from [danaspiegel/TableTool](https://github.com/danaspiegel/TableTool) which was forked from [jakob/TableTool](https://github.com/jakob/TableTool), with the following enhancements.
 
 - Added "Show Column Numbers" and "Show Column Letters" to the View menu.
 - Auto-detects Japanese text encodings such as Shift_JIS and UTF-8 when opening a file.
