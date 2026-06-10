@@ -19,6 +19,8 @@
 + (void)initialize {
     [[NSUserDefaults standardUserDefaults] registerDefaults:@{
         TTShowLineNumbersKey: @YES,
+        TTShowColumnNumbersKey: @NO,
+        TTShowColumnLettersKey: @NO,
         TTTableFontSizeKey: @13
     }];
 }

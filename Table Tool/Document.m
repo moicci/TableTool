@@ -14,6 +14,48 @@
 #import "TTErrorViewController.h"
 #import "ToolbarIcons.h"
 #import "TTPreferencesWindowController.h"
+#import "TTTableHeaderView.h"
+
+@class Document;
+
+@interface Document (FileDrop)
+- (NSURL *)fileURLFromDraggingInfo:(id<NSDraggingInfo>)info;
+- (NSDragOperation)dragOperationForFileDropFrom:(id<NSDraggingInfo>)info;
+- (BOOL)loadDroppedFileAtURL:(NSURL *)url;
+@end
+
+@interface TTDocumentDropView : NSView
+@property (nonatomic, weak) Document *document;
+@end
+
+@implementation TTDocumentDropView
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    [self registerForDraggedTypes:@[NSPasteboardTypeFileURL]];
+}
+
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender {
+    return [self.document dragOperationForFileDropFrom:sender];
+}
+
+- (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender {
+    return [self.document dragOperationForFileDropFrom:sender];
+}
+
+- (BOOL)prepareForDragOperation:(id<NSDraggingInfo>)sender {
+    return [self.document dragOperationForFileDropFrom:sender] != NSDragOperationNone;
+}
+
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
+    NSURL *fileURL = [self.document fileURLFromDraggingInfo:sender];
+    if (!fileURL) {
+        return NO;
+    }
+    return [self.document loadDroppedFileAtURL:fileURL];
+}
+
+@end
 
 @interface Document () {
     NSCell *dataCell;
@@ -71,8 +113,12 @@
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController {
     [super windowControllerDidLoadNib:aController];
+    if ([aController.window.contentView isKindOfClass:[TTDocumentDropView class]]) {
+        ((TTDocumentDropView *)aController.window.contentView).document = self;
+    }
     dataCell = [self.tableView.tableColumns.firstObject dataCell];
     [self updateTableColumns];
+    [self updateTableHeaderView];
     [self applyTableFont];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -188,6 +234,82 @@
 	return finalData;
 }
 
+#pragma mark - file drop
+
+-(NSURL *)fileURLFromDraggingInfo:(id<NSDraggingInfo>)info {
+    NSPasteboard *pboard = [info draggingPasteboard];
+    if (![pboard canReadObjectForClasses:@[[NSURL class]] options:@{NSPasteboardURLReadingFileURLsOnlyKey: @YES}]) {
+        return nil;
+    }
+    NSArray *urls = [pboard readObjectsForClasses:@[[NSURL class]] options:@{NSPasteboardURLReadingFileURLsOnlyKey: @YES}];
+    return urls.firstObject;
+}
+
+-(NSDragOperation)dragOperationForFileDropFrom:(id<NSDraggingInfo>)info {
+    NSURL *fileURL = [self fileURLFromDraggingInfo:info];
+    if (!fileURL || !fileURL.isFileURL) {
+        return NSDragOperationNone;
+    }
+    BOOL isDirectory = NO;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:fileURL.path isDirectory:&isDirectory] || isDirectory) {
+        return NSDragOperationNone;
+    }
+    return NSDragOperationCopy;
+}
+
+-(BOOL)loadDroppedFileAtURL:(NSURL *)url {
+    if (self.documentEdited) {
+        NSAlert *alert = [[NSAlert alloc] init];
+        alert.messageText = @"Do you want to save the changes you made in the document?";
+        alert.informativeText = @"Your changes will be lost if you don't save them.";
+        [alert addButtonWithTitle:@"Save"];
+        [alert addButtonWithTitle:@"Don't Save"];
+        [alert addButtonWithTitle:@"Cancel"];
+        switch ([alert runModal]) {
+            case NSAlertFirstButtonReturn:
+                [self saveDocument:nil];
+                if (self.documentEdited) {
+                    return NO;
+                }
+                break;
+            case NSAlertSecondButtonReturn:
+                break;
+            default:
+                return NO;
+        }
+    }
+    
+    NSError *error = nil;
+    NSString *typeName = [[NSDocumentController sharedDocumentController] typeForContentsOfURL:url error:&error];
+    if (!typeName) {
+        typeName = @"DocumentType";
+    }
+    
+    readingError = nil;
+    if (errorControllerView) {
+        [errorControllerView removeFromSuperview];
+        errorControllerView = nil;
+    }
+    
+    if (![self readFromURL:url ofType:typeName error:&error]) {
+        if (error) {
+            [self presentError:error modalForWindow:self.tableView.window delegate:nil didPresentSelector:NULL contextInfo:NULL];
+        }
+        return NO;
+    }
+    
+    [self setFileURL:url];
+    [self updateChangeCount:NSChangeCleared];
+    self.didSave = NO;
+    
+    if (statusBarFormatViewController) {
+        statusBarFormatViewController.config = self.csvConfig;
+        [statusBarFormatViewController selectFormatByConfig];
+    }
+    [self updateStatusBar];
+    return YES;
+}
+
 -(BOOL)readFromURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError * _Nullable __autoreleasing *)outError {
     [self.undoManager removeAllActions];
 	NSData *data = [NSData dataWithContentsOfURL:url options:0 error:outError];
@@ -195,15 +317,24 @@
 		return NO;
 	}
 	CSVHeuristic *formatHeuristic = [[CSVHeuristic alloc]initWithData:data];
+	BOOL preferChineseEncoding = NO;
+	BOOL preferJapaneseEncoding = NO;
 	for (NSString *language in [[NSUserDefaults standardUserDefaults] arrayForKey:@"AppleLanguages"]) {
-		if ([language isKindOfClass:[NSString class]] && [language hasPrefix:@"zh"]) {
-			formatHeuristic.preferChineseEncoding = YES;
+		if (![language isKindOfClass:[NSString class]]) {
+			continue;
+		}
+		if ([language hasPrefix:@"zh"]) {
+			preferChineseEncoding = YES;
+		}
+		if ([language hasPrefix:@"ja"]) {
+			preferJapaneseEncoding = YES;
 		}
 	}
-	NSStringEncoding usedEncoding;
-	if ([[NSString alloc] initWithContentsOfURL:url usedEncoding:&usedEncoding error:nil]) {
-		formatHeuristic.encoding = usedEncoding;
-	}
+	formatHeuristic.preferChineseEncoding = preferChineseEncoding;
+	formatHeuristic.preferJapaneseEncoding = preferJapaneseEncoding;
+	formatHeuristic.preferredEncoding = [CSVHeuristic detectedEncodingForData:data
+																preferJapanese:preferJapaneseEncoding
+																 preferChinese:preferChineseEncoding];
     newFile = NO;
     self.csvConfig = [formatHeuristic calculatePossibleFormat];
     
@@ -655,6 +786,27 @@ writeRowsWithIndexes:(NSIndexSet *)rowIndexes
         tableColumn.sortDescriptorPrototype = [NSSortDescriptor sortDescriptorWithKey:[NSString stringWithFormat:@"%d",i] ascending:YES];
         [self.tableView addTableColumn: tableColumn];
     }
+    [self updateTableHeaderView];
+}
+
+-(void)updateTableHeaderView {
+    if (!self.tableView) return;
+
+    NSTableHeaderView *existingHeader = self.tableView.headerView;
+    TTTableHeaderView *headerView;
+    if ([existingHeader isKindOfClass:[TTTableHeaderView class]]) {
+        headerView = (TTTableHeaderView *)existingHeader;
+    } else {
+        headerView = [[TTTableHeaderView alloc] initWithFrame:existingHeader.frame];
+        self.tableView.headerView = headerView;
+    }
+
+    CGFloat height = [TTTableHeaderView preferredHeight];
+    NSRect frame = headerView.frame;
+    frame.size.height = height;
+    headerView.frame = frame;
+    [headerView setNeedsDisplay:YES];
+    [self.tableView tile];
 }
 
 -(void)updateTableColumnsNames {
@@ -1055,6 +1207,14 @@ writeRowsWithIndexes:(NSIndexSet *)rowIndexes
         BOOL showingLineNumbers = [[NSUserDefaults standardUserDefaults] boolForKey:TTShowLineNumbersKey];
         menuItem.state = showingLineNumbers ? NSControlStateValueOn : NSControlStateValueOff;
     }
+    if (menuItem.action == @selector(toggleColumnNumbers:)) {
+        BOOL showingColumnNumbers = [[NSUserDefaults standardUserDefaults] boolForKey:TTShowColumnNumbersKey];
+        menuItem.state = showingColumnNumbers ? NSControlStateValueOn : NSControlStateValueOff;
+    }
+    if (menuItem.action == @selector(toggleColumnLetters:)) {
+        BOOL showingColumnLetters = [[NSUserDefaults standardUserDefaults] boolForKey:TTShowColumnLettersKey];
+        menuItem.state = showingColumnLetters ? NSControlStateValueOn : NSControlStateValueOff;
+    }
     return YES;
 }
 
@@ -1260,6 +1420,18 @@ writeRowsWithIndexes:(NSIndexSet *)rowIndexes
         }
     }
     [self.tableView reloadData];
+}
+
+-(IBAction)toggleColumnNumbers:(id)sender {
+    BOOL current = [[NSUserDefaults standardUserDefaults] boolForKey:TTShowColumnNumbersKey];
+    [[NSUserDefaults standardUserDefaults] setBool:!current forKey:TTShowColumnNumbersKey];
+    [self updateTableHeaderView];
+}
+
+-(IBAction)toggleColumnLetters:(id)sender {
+    BOOL current = [[NSUserDefaults standardUserDefaults] boolForKey:TTShowColumnLettersKey];
+    [[NSUserDefaults standardUserDefaults] setBool:!current forKey:TTShowColumnLettersKey];
+    [self updateTableHeaderView];
 }
 
 #pragma mark - Sort by Column

@@ -107,27 +107,80 @@
 	}
 }
 
--(CSVConfiguration *)calculatePossibleFormat{
-    [self initializeArrays];
-	NSArray *encodingTestList;
-	if (self.preferChineseEncoding) {
-		encodingTestList = @[
-							 @(NSUTF8StringEncoding),
-							 @(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000)), // GBK
-							 @(NSWindowsCP1252StringEncoding),
-							 @(NSMacOSRomanStringEncoding),
-							 ];
-	} else {
-		encodingTestList = @[
-							 @(NSUTF8StringEncoding),
-							 @(NSWindowsCP1252StringEncoding),
-							 @(NSMacOSRomanStringEncoding),
-							 @(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000)), // GBK
-							 ];
++(NSStringEncoding)detectedEncodingForData:(NSData *)data preferJapanese:(BOOL)preferJapanese preferChinese:(BOOL)preferChinese {
+	NSMutableArray<NSNumber *> *suggestedEncodings = [NSMutableArray arrayWithObject:@(NSUTF8StringEncoding)];
+	if (preferJapanese) {
+		[suggestedEncodings addObjectsFromArray:@[@(NSShiftJISStringEncoding), @(NSJapaneseEUCStringEncoding)]];
+	}
+	if (preferChinese) {
+		[suggestedEncodings addObject:@(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000))];
+	}
+	[suggestedEncodings addObjectsFromArray:@[@(NSWindowsCP1252StringEncoding), @(NSMacOSRomanStringEncoding)]];
+	if (!preferJapanese) {
+		[suggestedEncodings addObjectsFromArray:@[@(NSShiftJISStringEncoding), @(NSJapaneseEUCStringEncoding)]];
+	}
+	if (!preferChinese) {
+		[suggestedEncodings addObject:@(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000))];
 	}
 	
-    for (NSInteger i = 0; i < encodingTestList.count; ++i) {
-        [self setEncoding:[encodingTestList[i] unsignedIntegerValue]];
+	NSDictionary *options = @{NSStringEncodingDetectionSuggestedEncodingsKey: suggestedEncodings};
+	NSString *convertedString = nil;
+	BOOL usedLossyConversion = NO;
+	NSStringEncoding detectedEncoding = [NSString stringEncodingForData:data
+														encodingOptions:options
+														convertedString:&convertedString
+													 usedLossyConversion:&usedLossyConversion];
+	if (detectedEncoding == 0 || convertedString == nil) {
+		return 0;
+	}
+	return detectedEncoding;
+}
+
+-(NSArray<NSNumber *> *)encodingTestList {
+	NSMutableArray<NSNumber *> *encodings = [NSMutableArray array];
+	void (^addEncoding)(NSStringEncoding) = ^(NSStringEncoding encoding) {
+		for (NSNumber *existingEncoding in encodings) {
+			if ([existingEncoding unsignedIntegerValue] == encoding) {
+				return;
+			}
+		}
+		[encodings addObject:@(encoding)];
+	};
+	
+	if (self.preferredEncoding != 0) {
+		addEncoding(self.preferredEncoding);
+	}
+	
+	if (self.preferChineseEncoding) {
+		addEncoding(NSUTF8StringEncoding);
+		addEncoding(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000));
+		addEncoding(NSWindowsCP1252StringEncoding);
+		addEncoding(NSMacOSRomanStringEncoding);
+	} else if (self.preferJapaneseEncoding) {
+		addEncoding(NSUTF8StringEncoding);
+		addEncoding(NSShiftJISStringEncoding);
+		addEncoding(NSJapaneseEUCStringEncoding);
+		addEncoding(NSWindowsCP1252StringEncoding);
+		addEncoding(NSMacOSRomanStringEncoding);
+		addEncoding(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000));
+	} else {
+		addEncoding(NSUTF8StringEncoding);
+		addEncoding(NSWindowsCP1252StringEncoding);
+		addEncoding(NSMacOSRomanStringEncoding);
+		addEncoding(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000));
+		addEncoding(NSShiftJISStringEncoding);
+		addEncoding(NSJapaneseEUCStringEncoding);
+	}
+	
+	return encodings;
+}
+
+-(CSVConfiguration *)calculatePossibleFormat{
+    [self initializeArrays];
+	NSArray<NSNumber *> *encodingTestList = [self encodingTestList];
+	
+    for (NSNumber *encodingValue in encodingTestList) {
+        [self setEncoding:[encodingValue unsignedIntegerValue]];
         if([self useSimpleHeuristic]){
             break;
         }

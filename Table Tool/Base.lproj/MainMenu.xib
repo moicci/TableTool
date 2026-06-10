@@ -639,6 +639,18 @@ CA
                                     <action selector="toggleLineNumbers:" target="-1" id="TTL-ln-002"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Show Column Numbers" id="TTL-cn-001">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="toggleColumnNumbers:" target="-1" id="TTL-cn-002"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Show Column Letters" id="TTL-cl-001">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="toggleColumnLetters:" target="-1" id="TTL-cl-002"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

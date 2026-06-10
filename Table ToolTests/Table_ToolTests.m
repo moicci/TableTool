@@ -456,6 +456,24 @@
     XCTAssertEqual(config.encoding, NSWindowsCP1252StringEncoding, "Encoding should be Western");
 }
 
+- (void)testHeuristicShiftJIS {
+    NSURL *testFileUrl = [[NSBundle bundleForClass:[self class]] URLForResource:@"Heuristic Test Documents/heuristic-shift-jis" withExtension:@"csv"];
+    NSData *testData = [[NSData alloc] initWithContentsOfURL:testFileUrl];
+    CSVHeuristic *heuristic = [[CSVHeuristic alloc] initWithData:testData];
+    heuristic.preferJapaneseEncoding = YES;
+    heuristic.preferredEncoding = [CSVHeuristic detectedEncodingForData:testData preferJapanese:YES preferChinese:NO];
+    config = [heuristic calculatePossibleFormat];
+    XCTAssertEqual(config.encoding, NSShiftJISStringEncoding, "Encoding should be Shift_JIS");
+    XCTAssertTrue(config.firstRowAsHeader, "First row should be header");
+}
+
+- (void)testDetectedEncodingShiftJIS {
+    NSURL *testFileUrl = [[NSBundle bundleForClass:[self class]] URLForResource:@"Heuristic Test Documents/heuristic-shift-jis" withExtension:@"csv"];
+    NSData *testData = [[NSData alloc] initWithContentsOfURL:testFileUrl];
+    NSStringEncoding detected = [CSVHeuristic detectedEncodingForData:testData preferJapanese:YES preferChinese:NO];
+    XCTAssertEqual(detected, NSShiftJISStringEncoding, "Detected encoding should be Shift_JIS");
+}
+
 - (void)testHeuristicGBK {
 	NSURL *testFileUrl = [[NSBundle bundleForClass:[self class]] URLForResource:@"Heuristic Test Documents/heuristic-gbk" withExtension:@"csv"];
 	NSData *testData = [[NSData alloc] initWithContentsOfURL:testFileUrl];

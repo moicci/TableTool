@@ -25,6 +25,7 @@
 		E1CEF87F1B6A23860083B957 /* TTErrorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1CEF87D1B6A23860083B957 /* TTErrorViewController.m */; };
 		E1CEF8801B6A23860083B957 /* TTErrorViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1CEF87E1B6A23860083B957 /* TTErrorViewController.xib */; };
 		AA11223344556677 /* TTPreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = AA11223344556688 /* TTPreferencesWindowController.m */; };
+		TT11223344556601 /* TTTableHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = TT11223344556602 /* TTTableHeaderView.m */; };
 		E1CEF8831B6B63380083B957 /* ToolbarIcons.m in Sources */ = {isa = PBXBuildFile; fileRef = E1CEF8821B6B63380083B957 /* ToolbarIcons.m */; };
 		E1CEF8861B7097280083B957 /* CSVHeuristic.m in Sources */ = {isa = PBXBuildFile; fileRef = E1CEF8851B7097280083B957 /* CSVHeuristic.m */; };
 		E1CEF8881B74B4310083B957 /* test-doc-unquoted.csv in Resources */ = {isa = PBXBuildFile; fileRef = E1CEF8871B74B4310083B957 /* test-doc-unquoted.csv */; };
@@ -85,6 +86,8 @@
 		E1CEF88B1B79E5360083B957 /* Reading Test Documents */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Reading Test Documents"; sourceTree = "<group>"; };
 		E1CEF8911B7B4E5E0083B957 /* test-doc-quoted.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "test-doc-quoted.csv"; sourceTree = "<group>"; };
 		E1CEF8991B7CC4250083B957 /* Heuristic Test Documents */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Heuristic Test Documents"; sourceTree = "<group>"; };
+		TT11223344556603 /* TTTableHeaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TTTableHeaderView.h; sourceTree = "<group>"; };
+		TT11223344556602 /* TTTableHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TTTableHeaderView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,6 +157,8 @@
 				E1CEF87E1B6A23860083B957 /* TTErrorViewController.xib */,
 				AA11223344556699 /* TTPreferencesWindowController.h */,
 				AA11223344556688 /* TTPreferencesWindowController.m */,
+				TT11223344556603 /* TTTableHeaderView.h */,
+				TT11223344556602 /* TTTableHeaderView.m */,
 				E1CEF8841B7097280083B957 /* CSVHeuristic.h */,
 				E1CEF8851B7097280083B957 /* CSVHeuristic.m */,
 				AA41D3431CF2E7CE00CB3E7D /* Table Tool-Bridging-Header.h */,
@@ -318,6 +323,7 @@
 				E109B4921B623924005B4959 /* TTFormatViewController.m in Sources */,
 				E16BDFD11B4FA1B90024F0BD /* CSVWriter.m in Sources */,
 				AA11223344556677 /* TTPreferencesWindowController.m in Sources */,
+				TT11223344556601 /* TTTableHeaderView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

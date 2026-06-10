@@ -24,8 +24,11 @@
 @property CSVConfiguration *config11;
 @property NSData *data;
 @property BOOL preferChineseEncoding;
+@property BOOL preferJapaneseEncoding;
+@property NSStringEncoding preferredEncoding;
 
 -(instancetype)initWithData:(NSData *)data;
++(NSStringEncoding)detectedEncodingForData:(NSData *)data preferJapanese:(BOOL)preferJapanese preferChinese:(BOOL)preferChinese;
 -(CSVConfiguration *)calculatePossibleFormat;
 -(void)setEncoding:(NSStringEncoding)encoding;
 
