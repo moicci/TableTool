@@ -55,11 +55,11 @@
             _config.quoteCharacter = @"";
             _config.decimalMark = [[NSLocale currentLocale] objectForKey:NSLocaleDecimalSeparator];
         }
-        
+
         if(!dataString){
             dataString = [[NSString alloc] initWithData:_data encoding:_config.encoding];
         }
-        
+
         if(!dataString) {
             if(outError != NULL) {
                 *outError = [NSError errorWithDomain:@"at.eggerapps.Table-Tool" code:1 userInfo: @{NSLocalizedDescriptionKey: @"Could not read data", NSLocalizedRecoverySuggestionErrorKey:@"Try specifying a different encoding."}];
@@ -69,7 +69,7 @@
         dataScanner = [NSScanner scannerWithString:dataString];
         dataScanner.caseSensitive = YES;
         dataScanner.charactersToBeSkipped = nil;
-        
+
 		newlineCharacterSet = [NSCharacterSet newlineCharacterSet].mutableCopy;
 		[newlineCharacterSet removeCharactersInString:@"\x0b\x0c"];
         quoteEndedCharacterSet = newlineCharacterSet.mutableCopy;
@@ -77,10 +77,13 @@
         quoteAndEscapeSet = [[NSMutableCharacterSet alloc]init];
         [quoteAndEscapeSet addCharactersInString:_config.quoteCharacter];
         [quoteAndEscapeSet addCharactersInString:_config.escapeCharacter];
-        
+
         numberRegex = [NSRegularExpression regularExpressionWithPattern:[NSString stringWithFormat:@"^\\s*[+-]?(\\d+\\%@?\\d*|\\d*\\%@?\\d+)([eE][+-]?\\d+)?\\s*$",_config.decimalMark,_config.decimalMark] options:0 error:NULL];
+
+        // quoteCharacterが空文字列の場合はunquotedモードを設定
+        if([_config.quoteCharacter isEqualToString:@""]) unquoted = YES;
     }
-    
+
     return YES;
 }
 
@@ -117,11 +120,8 @@
             return nil;
         }
         
-        if(scannedString.length > 0 && [numberRegex numberOfMatchesInString:scannedString options:0 range:NSMakeRange(0, [scannedString length])] == 1){
-            [rowArray addObject:[NSDecimalNumber decimalNumberWithString:scannedString locale:@{NSLocaleDecimalSeparator:_config.decimalMark}]];
-        }else{
-            [rowArray addObject:scannedString];
-        }
+        // CSVの値は全て文字列として扱う
+        [rowArray addObject:scannedString];
         
         if(dataScanner.isAtEnd){
             _atEnd = YES;
@@ -146,50 +146,43 @@
 }
 
 -(NSArray *)readLineForPastingTo:(NSArray *)tableColumnsOrder maxColumnIndex:(long)maxColumnNumber {
-    
     [self initScannerWithError:NULL skipQuotes:YES];
     NSMutableArray *rowArray = [[NSMutableArray alloc]init];
     for(int i = 0; i < maxColumnNumber; i++){
         [rowArray addObject:@""];
     }
-    
+
     for(int i = 0;;i++) {
         NSString *scannedString = nil;
-        BOOL scannedValueIsNumber = NO;
-        
-        [self scanUnquotedValueIntoString:&scannedString error:NULL];
-        if([numberRegex numberOfMatchesInString:scannedString options:0 range:NSMakeRange(0, [scannedString length])] == 1){
-            scannedValueIsNumber = YES;
+
+        BOOL scanSuccess = [self scanUnquotedValueIntoString:&scannedString error:NULL];
+
+        // scanに失敗した場合は空文字列を使う
+        if(!scanSuccess || scannedString == nil) {
+            scannedString = @"";
         }
-        
+
+        // CSVの値は全て文字列として扱う
         if(tableColumnsOrder.count > i){
-            if(scannedValueIsNumber){
-                [rowArray replaceObjectAtIndex:[tableColumnsOrder[i] integerValue] withObject:[NSDecimalNumber decimalNumberWithString:scannedString locale:@{NSLocaleDecimalSeparator:_config.decimalMark}]];
-            }else{
-                [rowArray replaceObjectAtIndex:[tableColumnsOrder[i] integerValue] withObject:scannedString];
-            }
+            [rowArray replaceObjectAtIndex:[tableColumnsOrder[i] integerValue] withObject:scannedString];
         } else {
-            if(scannedValueIsNumber){
-                [rowArray addObject:[NSDecimalNumber decimalNumberWithString:scannedString locale:@{NSLocaleDecimalSeparator:_config.decimalMark}]];
-            }else{
-                [rowArray addObject:scannedString];
-            }
+            [rowArray addObject:scannedString];
         }
-        
+
         if(dataScanner.isAtEnd){
             _atEnd = YES;
             break;
         }
-        
+
         if([newlineCharacterSet characterIsMember:[dataString characterAtIndex:dataScanner.scanLocation]]){
             dataScanner.scanLocation++;
             break;
         }
-        
+
         //scanning column separator
         dataScanner.scanLocation++;
     }
-    
+
     return rowArray;
 }
 

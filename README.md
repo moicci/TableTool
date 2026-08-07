@@ -69,3 +69,49 @@ TableTool seeks to be a great and simple CSV file editor and nothing more. Any f
 ## Licence
 
 Table Tool is distributed under the [MIT Licence](https://github.com/jakob/TableTool/blob/master/LICENSE).
+
+## Build
+
+普通にビルドして、/Applications に入れるには `./deploy.sh`
+
+
+### デバッグビルド（開発用）:
+
+```
+xcodebuild build \
+    -project "Table Tool.xcodeproj" \
+    -scheme "Table Tool" \
+    -destination "platform=macOS" \
+    -configuration Debug \
+    ONLY_ACTIVE_ARCH=NO \
+    MACOSX_DEPLOYMENT_TARGET=10.13 \
+    CODE_SIGN_IDENTITY="" \
+    CODE_SIGNING_REQUIRED=NO
+```
+
+### リリースビルド（配布用）:
+
+```
+xcodebuild build \
+    -project "Table Tool.xcodeproj" \
+    -scheme "Table Tool" \
+    -destination "platform=macOS" \
+    -configuration Release \
+    -derivedDataPath "./build/DerivedData" \
+    ONLY_ACTIVE_ARCH=NO \
+    MACOSX_DEPLOYMENT_TARGET=10.13 \
+    CODE_SIGN_IDENTITY="-" \
+    CODE_SIGNING_REQUIRED=NO
+```
+
+  ビルドされたアプリはbuild/DerivedData/Build/Products/Release/Table Tool.appに生成されるぞ。
+
+### テスト実行:
+
+```
+xcodebuild test \
+    -project "Table Tool.xcodeproj" \
+    -scheme "Table Tool" \
+    -destination "platform=macOS" \
+    -configuration Debug
+```

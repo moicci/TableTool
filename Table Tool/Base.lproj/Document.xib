@@ -150,49 +150,35 @@
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="0565C83F-5794-4021-81D9-15078D3B45FB" label="Add Column" paletteLabel="Add Column" id="L16-81-E18">
                         <nil key="toolTip"/>
-                        <size key="minSize" width="67" height="22"/>
-                        <size key="maxSize" width="75" height="28"/>
-                        <segmentedControl key="view" verticalHuggingPriority="750" id="ufp-YO-QNk">
-                            <rect key="frame" x="0.0" y="14" width="71" height="28"/>
+                        <size key="minSize" width="30" height="28"/>
+                        <size key="maxSize" width="34" height="30"/>
+                        <button key="view" verticalHuggingPriority="750" id="ufp-YO-QNk">
+                            <rect key="frame" x="0.0" y="14" width="30" height="28"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <segmentedCell key="cell" enabled="NO" borderStyle="border" alignment="left" style="texturedRounded" trackingMode="momentary" id="KPy-FB-oij">
+                            <buttonCell key="cell" type="roundTextured" bezelStyle="texturedRounded" alignment="center" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KPy-FB-oij">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
-                                <segments>
-                                    <segment width="32">
-                                        <nil key="label"/>
-                                    </segment>
-                                    <segment width="32" tag="1">
-                                        <nil key="label"/>
-                                    </segment>
-                                </segments>
-                            </segmentedCell>
-                            <connections>
-                                <action selector="addColumn:" target="-2" id="PhM-xQ-Oft"/>
-                            </connections>
-                        </segmentedControl>
+                                <connections>
+                                    <action selector="addColumn:" target="-2" id="PhM-xQ-Oft"/>
+                                </connections>
+                            </buttonCell>
+                        </button>
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="9CB9291B-E94F-4515-BDAE-2FC350E1CF35" label="Add Row" paletteLabel="Add Row" id="uIc-SS-WZD">
                         <nil key="toolTip"/>
-                        <size key="minSize" width="71" height="27"/>
-                        <size key="maxSize" width="75" height="28"/>
-                        <segmentedControl key="view" verticalHuggingPriority="750" id="FID-WH-eOP">
-                            <rect key="frame" x="0.0" y="14" width="71" height="28"/>
+                        <size key="minSize" width="30" height="28"/>
+                        <size key="maxSize" width="34" height="30"/>
+                        <button key="view" verticalHuggingPriority="750" id="FID-WH-eOP">
+                            <rect key="frame" x="0.0" y="14" width="30" height="28"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <segmentedCell key="cell" enabled="NO" borderStyle="border" alignment="left" style="texturedRounded" trackingMode="momentary" id="h3f-jd-RHe">
+                            <buttonCell key="cell" type="roundTextured" bezelStyle="texturedRounded" alignment="center" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="h3f-jd-RHe">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
-                                <segments>
-                                    <segment width="32">
-                                        <nil key="label"/>
-                                    </segment>
-                                    <segment width="32" tag="1">
-                                        <nil key="label"/>
-                                    </segment>
-                                </segments>
-                            </segmentedCell>
-                            <connections>
-                                <action selector="addRow:" target="-2" id="TOo-A3-LE5"/>
-                            </connections>
-                        </segmentedControl>
+                                <connections>
+                                    <action selector="addRow:" target="-2" id="TOo-A3-LE5"/>
+                                </connections>
+                            </buttonCell>
+                        </button>
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="B703BD07-0368-4319-B261-2C45F156D82D" label="Convert…" paletteLabel="Convert…" image="NSShareTemplate" id="cxB-ko-x5S">
                         <nil key="toolTip"/>

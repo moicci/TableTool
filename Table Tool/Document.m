@@ -850,27 +850,13 @@ writeRowsWithIndexes:(NSIndexSet *)rowIndexes
 
 
 - (IBAction)addRow:(id)sender {
-    switch ([self.toolBarButtonsAddRow selectedSegment]) {
-        case 0:
-            [self addRowAbove:sender];
-            break;
-        case 1:
-            [self addRowBelow:sender];
-        default:
-            break;
-    }
+    // デフォルトで下に行を追加
+    [self addRowBelow:sender];
 }
 
 - (IBAction)addColumn:(id)sender {
-    switch ([self.toolBarButtonsAddColumn selectedSegment]) {
-        case 0:
-            [self addColumnLeft:sender];
-            break;
-        case 1:
-            [self addColumnRight:sender];
-        default:
-            break;
-    }
+    // デフォルトで右にカラムを追加
+    [self addColumnRight:sender];
 }
 
 -(void)addRowAbove:(id)sender {
@@ -983,22 +969,22 @@ writeRowsWithIndexes:(NSIndexSet *)rowIndexes
 }
 
 -(void)updateToolbarIcons {
-	if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_10) {
-		self.toolBarButtonsAddColumn.segmentStyle = NSSegmentStyleSeparated;
-		self.toolBarButtonsAddRow.segmentStyle = NSSegmentStyleSeparated;
-	}
-    [self.toolBarButtonsAddColumn setImage:[ToolbarIcons imageOfAddLeftColumnIcon] forSegment:0];
-    [self.toolBarButtonsAddColumn setImage:[ToolbarIcons imageOfAddRightColumnIcon] forSegment:1];
+    // Add Columnボタンのアイコン設定（右にカラム追加）
+    self.toolBarButtonsAddColumn.image = [ToolbarIcons imageOfAddRightColumnIcon];
     NSSize addColumnSize = self.toolBarButtonsAddColumn.intrinsicContentSize;
+    addColumnSize.width = 35;
     addColumnSize.height = 30;
     self.toolbarItemAddColumn.minSize = addColumnSize;
     self.toolbarItemAddColumn.maxSize = addColumnSize;
-    [self.toolBarButtonsAddRow setImage:[ToolbarIcons imageOfAddRowAboveIcon] forSegment:0];
-    [self.toolBarButtonsAddRow setImage:[ToolbarIcons imageOfAddRowBelowIcon] forSegment:1];
+
+    // Add Rowボタンのアイコン設定（下に行追加）
+    self.toolBarButtonsAddRow.image = [ToolbarIcons imageOfAddRowBelowIcon];
     NSSize addRowSize = self.toolBarButtonsAddRow.intrinsicContentSize;
+    addRowSize.width = 35;
     addRowSize.height = 30;
     self.toolbarItemAddRow.minSize = addRowSize;
     self.toolbarItemAddRow.maxSize = addRowSize;
+
     self.toolBarButtonDeleteColumn.image = [ToolbarIcons imageOfDeleteColumnIcon];
     NSSize deleteColumnSize = self.toolBarButtonDeleteColumn.intrinsicContentSize;
     deleteColumnSize.width = 35;
@@ -1301,25 +1287,25 @@ writeRowsWithIndexes:(NSIndexSet *)rowIndexes
         toInsertIndex = [selectedRowIndexes lastIndex] > [selectedRowIndexes firstIndex] ? [selectedRowIndexes lastIndex] + 1 : [selectedRowIndexes firstIndex] + 1;
     }
     long firstIndex = toInsertIndex;
-    
+
     NSArray *classes = [[NSArray alloc]initWithObjects:[NSString class], nil];
     NSDictionary *options = [NSDictionary dictionary];
     NSPasteboard *generalPasteboard = [NSPasteboard generalPasteboard];
     NSArray *toInsert = [generalPasteboard readObjectsForClasses:classes options:options];
     CSVReader *reader = [[CSVReader alloc]initWithString:[toInsert lastObject] configuration:self.csvConfig];
-    
+
     while(!reader.isAtEnd) {
         NSArray *oneReadLine = [reader readLineForPastingTo:[self getColumnsOrder] maxColumnIndex:_maxColumnNumber];
-        
+
         for(long i = _maxColumnNumber; i < oneReadLine.count;i++){
             [self addColumnAtIndex:self.tableView.tableColumns.count];
         }
-        
+
         [_data insertObject:oneReadLine atIndex:toInsertIndex];
         toInsertIndex++;
     }
     [self.tableView reloadData];
-    
+
     NSIndexSet *toSelectRowIndexes = [[NSIndexSet alloc]initWithIndexesInRange:NSMakeRange(firstIndex, toInsertIndex-firstIndex)];
     [self.tableView selectRowIndexes:toSelectRowIndexes byExtendingSelection:NO];
     [[self.undoManager prepareWithInvocationTarget:self] deleteRowsAtIndexes:toSelectRowIndexes];

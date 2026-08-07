@@ -19,8 +19,8 @@
 @property IBOutlet NSTableView *tableView;
 @property IBOutlet NSSplitView *splitView;
 @property (strong) IBOutlet NSButton *toolBarButtonDeleteColumn;
-@property (strong) IBOutlet NSSegmentedControl *toolBarButtonsAddColumn;
-@property (strong) IBOutlet NSSegmentedControl *toolBarButtonsAddRow;
+@property (strong) IBOutlet NSButton *toolBarButtonsAddColumn;
+@property (strong) IBOutlet NSButton *toolBarButtonsAddRow;
 @property (strong) IBOutlet NSToolbarItem *toolbarItemAddColumn;
 @property (strong) IBOutlet NSToolbarItem *toolbarItemAddRow;
 @property (strong) IBOutlet NSButton *toolBarButtonDeleteRow;
