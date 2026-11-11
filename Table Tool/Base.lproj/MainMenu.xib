@@ -676,6 +676,32 @@ CA
                                     <action selector="arrangeInFront:" target="-1" id="DRN-fu-gQh"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="TTL-cm-sep"/>
+                            <menuItem title="Color Mode" id="TTL-cm-001">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Color Mode" id="TTL-cm-sub">
+                                    <items>
+                                        <menuItem title="System" id="TTL-cm-sys">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setAppearanceModeSystem:" target="Voe-Tx-rLC" id="TTL-cm-sys-act"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Light" id="TTL-cm-lgt">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setAppearanceModeLight:" target="Voe-Tx-rLC" id="TTL-cm-lgt-act"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Dark" id="TTL-cm-drk">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="setAppearanceModeDark:" target="Voe-Tx-rLC" id="TTL-cm-drk-act"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

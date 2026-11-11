@@ -11,6 +11,9 @@
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 -(IBAction)showPreferences:(id)sender;
+-(IBAction)setAppearanceModeSystem:(id)sender;
+-(IBAction)setAppearanceModeLight:(id)sender;
+-(IBAction)setAppearanceModeDark:(id)sender;
 
 @end
 

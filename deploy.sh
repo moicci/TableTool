@@ -7,7 +7,7 @@ xcodebuild build \
     -configuration Release \
     -derivedDataPath "./build/DerivedData" \
     ONLY_ACTIVE_ARCH=NO \
-    MACOSX_DEPLOYMENT_TARGET=10.13 \
+    MACOSX_DEPLOYMENT_TARGET=12.0 \
     CODE_SIGN_IDENTITY="-" \
     CODE_SIGNING_REQUIRED=NO
 

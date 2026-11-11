@@ -23,3 +23,4 @@ NSString *TTShowColumnNumbersKey = @"showColumnNumbers";
 NSString *TTShowColumnLettersKey = @"showColumnLetters";
 NSString *TTTableFontNameKey = @"tableFontName";
 NSString *TTTableFontSizeKey = @"tableFontSize";
+NSString *TTAppearanceModeKey = @"appearanceMode";

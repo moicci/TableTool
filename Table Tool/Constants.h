@@ -23,3 +23,4 @@ extern NSString *TTShowColumnNumbersKey;
 extern NSString *TTShowColumnLettersKey;
 extern NSString *TTTableFontNameKey;
 extern NSString *TTTableFontSizeKey;
+extern NSString *TTAppearanceModeKey;
